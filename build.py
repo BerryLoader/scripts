@@ -11,7 +11,7 @@ import psutil
 # Section: #UPDATE PATH
 dllName = "YourMod.dll"
 dllDir = "./bin/Debug/netstandard2.0/"
-modsDir = "../../Game/mods/YourMod"
+modsDir = "../../Game/mods/YourMod/"
 stacklandsExe = "../../Game/Stacklands"
 
 # Section: build mod
