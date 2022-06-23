@@ -8,6 +8,12 @@ from pathlib import Path
 
 import psutil
 
+# Section: #UPDATE PATH
+dllName = "YourMod.dll"
+dllDir = "./bin/Debug/netstandard2.0/"
+modsDir = "../../Game/mods/YourMod"
+stacklandsExe = "../../Game/Stacklands"
+
 # Section: build mod
 start_time = time.time()
 
@@ -19,15 +25,15 @@ if p.returncode != 0:
 
 print(f"built in {time.time() - start_time:.2f}s")
 
-# Section: kill stacklands process
-for proc in psutil.process_iter(["name", "pid"]):
+# Section: kill stacklands process if running
+for proc in psutil.process_iter(["name", "exe"]):
     if proc.name() == "Stacklands.exe":
+        stacklandsExe = proc.exe()
         proc.kill()
         proc.wait()
-        
+
 # Section: copy dll
-dll = "./bin/Debug/netstandard2.0/YourMod.dll" # UPDATE PATH
-shutil.copyfile(dll, "../../Game/mods/YourMod/YourMod.dll") # UPDATE PATH
+shutil.copyfile(dllDir + dllName, modsDir + dllName)
 
 def sync_folder(src: Path, dst: Path):
     for file in dst.glob("**/*"):
@@ -45,9 +51,9 @@ def sync_folder(src: Path, dst: Path):
                 shutil.copy(file, file_in_dst)
             if file.is_dir():
                 shutil.copytree(file, file_in_dst)
-                
+
 # Section: copy content paths
-game = Path("../../Game/mods/YourMod").resolve() # UPDATE PATH
+game = Path(modsDir).resolve()
 print("syncing folders..")
 sync_folder(Path("Blueprints"), game / "Blueprints")
 sync_folder(Path("Boosterpacks"), game / "Boosterpacks")
@@ -56,4 +62,4 @@ sync_folder(Path("Images"), game / "Images")
 sync_folder(Path("Sounds"), game / "Sounds")
 
 # Section: launch the game
-subprocess.Popen("..\..\Game\Stacklands") # UPDATE PATH
+subprocess.Popen(stacklandsExe)
