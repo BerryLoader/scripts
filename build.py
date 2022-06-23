@@ -34,7 +34,7 @@ def sync_folder(src: Path, dst: Path):
         file_in_src = src / file.relative_to(dst)
         if file.is_dir() and not file_in_src.exists():
             shutil.rmtree(file)
-        else if file.is_file():
+        elif file.is_file():
             if not file_in_src.exists() or file.stat().st_mtime < file_in_src.stat().st_mtime:
                 os.remove(file)
     for file in src.glob("**/*"):
