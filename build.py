@@ -43,7 +43,7 @@ def sync_folder(src: Path, dst: Path):
             file_in_dst.parent.mkdir(parents=True, exist_ok=True)
             if file.is_file():
                 shutil.copy(file, file_in_dst)
-            else if file.is_dir():
+            elif file.is_dir():
                 shutil.copytree(file, file_in_dst)
                 
 # Section: copy content paths
