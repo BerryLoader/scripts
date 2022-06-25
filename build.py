@@ -34,7 +34,7 @@ def sync_folder(src: Path, dst: Path):
         file_in_src = src / file.relative_to(dst)
         if file.is_dir() and not file_in_src.exists():
             shutil.rmtree(file)
-        if file.is_file() and (not file_in_src.exists() or file.stat().st_mtime < file_in_src.stat().st_mtime):
+        elif file.is_file() and (not file_in_src.exists() or file.stat().st_mtime < file_in_src.stat().st_mtime):
             os.remove(file)
     for file in src.glob("**/*"):
         file_in_dst = dst / file.relative_to(src)
@@ -42,7 +42,7 @@ def sync_folder(src: Path, dst: Path):
             file_in_dst.parent.mkdir(parents=True, exist_ok=True)
             if file.is_file():
                 shutil.copy(file, file_in_dst)
-            if file.is_dir():
+            elif file.is_dir():
                 shutil.copytree(file, file_in_dst)
                 
 # Section: copy content paths
