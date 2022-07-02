@@ -8,6 +8,13 @@ from pathlib import Path
 
 import psutil
 
+# script configuration: edit these options to fit your setup
+GAME_ROOT = Path("../../Game").resolve()
+MOD_BIN = Path("bin/Debug/netstandard2.0")
+MOD_ID = "YourMod"
+STACKLANDS_EXE = GAME_ROOT / "Stacklands"
+SYNC_FOLDERS = ["Blueprints", "Boosterpacks", "Cards", "Images", "Sounds"]
+
 
 def build_mod():
     start_time = time.time()
@@ -20,7 +27,7 @@ def build_mod():
 
 
 def launch_stacklands():
-    subprocess.Popen("..\..\Game\Stacklands")  # UPDATE PATH
+    subprocess.Popen(STACKLANDS_EXE)
 
 
 def kill_stacklands():
@@ -48,19 +55,17 @@ def sync_folder(src: Path, dst: Path):
 
 
 def copy_files():
-    dll = "./bin/Debug/netstandard2.0/YourMod.dll"  # UPDATE PATH
-    shutil.copyfile(dll, "../../Game/mods/YourMod/YourMod.dll")  # UPDATE PATH
+    shutil.copyfile(MOD_DLL, MOD_GAME_PATH / MOD_DLL.name)
 
-    game = Path("../../Game/mods/YourMod").resolve()  # UPDATE PATH
     print("syncing folders..")
-    sync_folder(Path("Blueprints"), game / "Blueprints")
-    sync_folder(Path("Boosterpacks"), game / "Boosterpacks")
-    sync_folder(Path("Cards"), game / "Cards")
-    sync_folder(Path("Images"), game / "Images")
-    sync_folder(Path("Sounds"), game / "Sounds")
+    for folder in SYNC_FOLDERS:
+        sync_folder(Path(folder), MOD_GAME_PATH / folder)
 
 
 if __name__ == "__main__":
+    MOD_DLL = (MOD_BIN / MOD_ID).with_suffix(".dll")
+    MOD_GAME_PATH = GAME_ROOT / "mods" / MOD_ID
+
     build_mod()
     kill_stacklands()
     copy_files()
