@@ -55,6 +55,7 @@ def sync_folder(src: Path, dst: Path):
 
 
 def copy_files():
+    MOD_GAME_PATH.mkdir(exist_ok=True)
     shutil.copyfile(MOD_DLL, MOD_GAME_PATH / MOD_DLL.name)
 
     print("syncing folders..")
