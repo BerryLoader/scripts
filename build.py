@@ -1,33 +1,34 @@
-# Example build script for mods. Feel free to comment out all sections you dont want
+# Example build script for mods. Feel free to modify the calls at the end of the file to fit your needs
 
+import os
 import shutil
 import subprocess
 import time
-import os
 from pathlib import Path
 
 import psutil
 
-# Section: build mod
-start_time = time.time()
 
-p = subprocess.Popen("dotnet build", stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-stdout, stderr = p.communicate()
-if p.returncode != 0:
-    print(stdout.decode())
-    exit(p.returncode)
+def build_mod():
+    start_time = time.time()
+    p = subprocess.Popen("dotnet build", stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+    stdout, stderr = p.communicate()
+    if p.returncode != 0:
+        print(stdout.decode())
+        exit(p.returncode)
+    print(f"built in {time.time() - start_time:.2f}s")
 
-print(f"built in {time.time() - start_time:.2f}s")
 
-# Section: kill stacklands process
-for proc in psutil.process_iter(["name", "pid"]):
-    if proc.name() == "Stacklands.exe":
-        proc.kill()
-        proc.wait()
-        
-# Section: copy dll
-dll = "./bin/Debug/netstandard2.0/YourMod.dll" # UPDATE PATH
-shutil.copyfile(dll, "../../Game/mods/YourMod/YourMod.dll") # UPDATE PATH
+def launch_stacklands():
+    subprocess.Popen("..\..\Game\Stacklands")  # UPDATE PATH
+
+
+def kill_stacklands():
+    for proc in psutil.process_iter(["name", "pid"]):
+        if proc.name() == "Stacklands.exe":
+            proc.kill()
+            proc.wait()
+
 
 def sync_folder(src: Path, dst: Path):
     for file in dst.glob("**/*"):
@@ -44,15 +45,23 @@ def sync_folder(src: Path, dst: Path):
                 shutil.copy(file, file_in_dst)
             elif file.is_dir():
                 shutil.copytree(file, file_in_dst)
-                
-# Section: copy content paths
-game = Path("../../Game/mods/YourMod").resolve() # UPDATE PATH
-print("syncing folders..")
-sync_folder(Path("Blueprints"), game / "Blueprints")
-sync_folder(Path("Boosterpacks"), game / "Boosterpacks")
-sync_folder(Path("Cards"), game / "Cards")
-sync_folder(Path("Images"), game / "Images")
-sync_folder(Path("Sounds"), game / "Sounds")
 
-# Section: launch the game
-subprocess.Popen("..\..\Game\Stacklands") # UPDATE PATH
+
+def copy_files():
+    dll = "./bin/Debug/netstandard2.0/YourMod.dll"  # UPDATE PATH
+    shutil.copyfile(dll, "../../Game/mods/YourMod/YourMod.dll")  # UPDATE PATH
+
+    game = Path("../../Game/mods/YourMod").resolve()  # UPDATE PATH
+    print("syncing folders..")
+    sync_folder(Path("Blueprints"), game / "Blueprints")
+    sync_folder(Path("Boosterpacks"), game / "Boosterpacks")
+    sync_folder(Path("Cards"), game / "Cards")
+    sync_folder(Path("Images"), game / "Images")
+    sync_folder(Path("Sounds"), game / "Sounds")
+
+
+if __name__ == "__main__":
+    build_mod()
+    kill_stacklands()
+    copy_files()
+    launch_stacklands()
