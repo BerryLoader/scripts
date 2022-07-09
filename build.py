@@ -64,16 +64,22 @@ def copy_files():
 
 
 if __name__ == "__main__":
+    # this little hack makes the script callable from anywhere
+    old_path = Path.cwd()
     try:
-        with open("manifest.json") as f:
-            MOD_ID = json.load(f).get("id")
-    except FileNotFoundError:
-        print("manifest.json not found, make sure you put this script into the right location")
-        exit(1)
-    MOD_DLL = (MOD_BIN / MOD_ID).with_suffix(".dll")
-    MOD_GAME_PATH = GAME_ROOT / "mods" / MOD_ID
+        os.chdir(Path(__file__).parent.parent)
+        try:
+            with open("manifest.json") as f:
+                MOD_ID = json.load(f).get("id")
+        except FileNotFoundError:
+            print("manifest.json not found, make sure you put this script into the correct location (check the readme)")
+            exit(1)
+        MOD_DLL = (MOD_BIN / MOD_ID).with_suffix(".dll")
+        MOD_GAME_PATH = GAME_ROOT / "mods" / MOD_ID
 
-    build_mod()
-    kill_stacklands()
-    copy_files()
-    launch_stacklands()
+        build_mod()
+        kill_stacklands()
+        copy_files()
+        launch_stacklands()
+    finally:
+        os.chdir(old_path)
