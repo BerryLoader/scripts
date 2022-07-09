@@ -1,5 +1,6 @@
 # Example build script for mods. Feel free to modify the calls at the end of the file to fit your needs
-
+# Intended use: copy this script into your_mod_project/scripts/
+import json
 import os
 import shutil
 import subprocess
@@ -11,7 +12,6 @@ import psutil
 # script configuration: edit these options to fit your setup
 GAME_ROOT = Path("../../Game").resolve()
 MOD_BIN = Path("bin/Debug/netstandard2.0")
-MOD_ID = "YourMod"
 STACKLANDS_EXE = GAME_ROOT / "Stacklands"
 SYNC_FOLDERS = ["Blueprints", "Boosterpacks", "Cards", "Images", "Sounds"]
 
@@ -64,6 +64,12 @@ def copy_files():
 
 
 if __name__ == "__main__":
+    try:
+        with open("manifest.json") as f:
+            MOD_ID = json.load(f).get("id")
+    except FileNotFoundError:
+        print("manifest.json not found, make sure you put this script into the right location")
+        exit(1)
     MOD_DLL = (MOD_BIN / MOD_ID).with_suffix(".dll")
     MOD_GAME_PATH = GAME_ROOT / "mods" / MOD_ID
 
