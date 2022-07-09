@@ -10,7 +10,8 @@ from pathlib import Path
 import psutil
 
 # script configuration: edit these options to fit your setup
-GAME_ROOT = Path("../../Game").resolve()
+# these paths are relative to your project root. absolute paths also work
+GAME_ROOT = Path("C:/Program Files (x86)/Steam/steamapps/common/Stacklands").resolve()
 MOD_BIN = Path("bin/Debug/netstandard2.0")
 STACKLANDS_EXE = GAME_ROOT / "Stacklands"
 SYNC_FOLDERS = ["Blueprints", "Boosterpacks", "Cards", "Images", "Sounds"]
