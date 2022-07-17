@@ -40,6 +40,9 @@ def kill_stacklands():
 
 
 def sync_folder(src: Path, dst: Path):
+    if not src.exists():
+        return shutil.rmtree(dst)
+    dst.mkdir(exist_ok=True)
     for file in dst.glob("**/*"):
         file_in_src = src / file.relative_to(dst)
         if file.is_dir() and not file_in_src.exists():
