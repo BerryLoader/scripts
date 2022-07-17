@@ -12,6 +12,7 @@ import psutil
 # script configuration: edit these options to fit your setup
 # these paths are relative to your project root. absolute paths also work
 GAME_ROOT = Path("C:/Program Files (x86)/Steam/steamapps/common/Stacklands").resolve()
+MANIFEST = Path("manifest.json")
 MOD_BIN = Path("bin/Debug/netstandard2.0")
 STACKLANDS_EXE = GAME_ROOT / "Stacklands"
 SYNC_FOLDERS = ["Blueprints", "Boosterpacks", "Cards", "Images", "Sounds"]
@@ -58,6 +59,7 @@ def sync_folder(src: Path, dst: Path):
 def copy_files():
     MOD_GAME_PATH.mkdir(exist_ok=True)
     shutil.copyfile(MOD_DLL, MOD_GAME_PATH / MOD_DLL.name)
+    shutil.copyfile(MANIFEST, MOD_GAME_PATH / MANIFEST.name)
 
     print("syncing folders..")
     for folder in SYNC_FOLDERS:
@@ -70,7 +72,7 @@ if __name__ == "__main__":
     try:
         os.chdir(Path(__file__).parent.parent)
         try:
-            with open("manifest.json") as f:
+            with open(MANIFEST) as f:
                 MOD_ID = json.load(f).get("id")
         except FileNotFoundError:
             print("manifest.json not found, make sure you put this script into the correct location (check the readme)")
