@@ -1,10 +1,10 @@
 # Example build script for mods. Feel free to modify the calls at the end of the file to fit your needs
 # Intended use: copy this script into your_mod_project/scripts/
-import json
 import os
 import shutil
 import subprocess
 import time
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 import psutil
@@ -12,10 +12,10 @@ import psutil
 # script configuration: edit these options to fit your setup
 # these paths are relative to your project root. absolute paths also work
 GAME_ROOT = Path("C:/Program Files (x86)/Steam/steamapps/common/Stacklands").resolve()
-MANIFEST = Path("manifest.json")
-MOD_BIN = Path("bin/Debug/netstandard2.0")
-STACKLANDS_EXE = GAME_ROOT / "Stacklands"
 SYNC_FOLDERS = ["Blueprints", "Boosterpacks", "Cards", "Images", "Sounds"]
+# you probably dont need to touch these
+STACKLANDS_EXE = GAME_ROOT / "Stacklands"
+MOD_BIN = Path("bin/Debug/netstandard2.0")
 
 
 def build_mod():
@@ -40,9 +40,6 @@ def kill_stacklands():
 
 
 def sync_folder(src: Path, dst: Path):
-    if not src.exists():
-        return shutil.rmtree(dst)
-    dst.mkdir(exist_ok=True)
     for file in dst.glob("**/*"):
         file_in_src = src / file.relative_to(dst)
         if file.is_dir() and not file_in_src.exists():
@@ -62,7 +59,6 @@ def sync_folder(src: Path, dst: Path):
 def copy_files():
     MOD_GAME_PATH.mkdir(exist_ok=True)
     shutil.copyfile(MOD_DLL, MOD_GAME_PATH / MOD_DLL.name)
-    shutil.copyfile(MANIFEST, MOD_GAME_PATH / MANIFEST.name)
 
     print("syncing folders..")
     for folder in SYNC_FOLDERS:
@@ -74,14 +70,13 @@ if __name__ == "__main__":
     old_path = Path.cwd()
     try:
         os.chdir(Path(__file__).parent.parent)
-        try:
-            with open(MANIFEST) as f:
-                MOD_ID = json.load(f).get("id")
-        except FileNotFoundError:
-            print("manifest.json not found, make sure you put this script into the correct location (check the readme)")
-            exit(1)
-        MOD_DLL = (MOD_BIN / MOD_ID).with_suffix(".dll")
-        MOD_GAME_PATH = GAME_ROOT / "mods" / MOD_ID
+        found_csprojs = list(Path(".").glob("*.csproj"))
+        if len(found_csprojs) != 1:
+            raise RuntimeError("Can't find .csproj file")
+        with open(found_csprojs[0], encoding="utf-8") as f:
+            root = ET.parse(f).getroot()
+            MOD_DLL = MOD_BIN / f"{root.find('./PropertyGroup/AssemblyName').text}.dll"
+            MOD_GAME_PATH = GAME_ROOT / f"BepInEx/plugins/{found_csprojs[0].stem}"
 
         build_mod()
         kill_stacklands()
